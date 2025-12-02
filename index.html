@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="High Resolution Melting curve analysis for RT-PCR data"
+    />
+    <meta name="theme-color" content="#3b82f6" />
+
+    <title>HRM Analyzer - High Resolution Melting Analysis</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/charts.css" />
+
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="HRM Analyzer" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="app-header">
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <div class="logo-icon">🧬</div>
+            <div>
+              <h1 class="app-title">HRM Analyzer</h1>
+              <p class="app-subtitle">High Resolution Melting Analysis</p>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <button id="exportBtn" class="btn btn-secondary btn-sm" disabled>
+              📊 Export Results
+            </button>
+            <button id="helpBtn" class="btn btn-secondary btn-sm">
+              ❓ Help
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <!-- Upload Section -->
+        <section id="uploadSection" class="fade-in">
+          <div class="card">
+            <div class="upload-zone" id="uploadZone">
+              <input
+                type="file"
+                id="fileInput"
+                accept=".csv,.tsv,.txt,.eds"
+                multiple
+              />
+              <div class="upload-icon">📁</div>
+              <p class="upload-text">Drop your HRM data files here</p>
+              <p class="upload-hint">
+                or click to browse • Supports CSV, TSV, EDS files
+              </p>
+            </div>
+          </div>
+
+          <!-- Info Card -->
+        <div class="card mt-4">
+          <h3>📋 Getting Started</h3>
+          <p>This tool analyzes High Resolution Melting (HRM) curve data from RT-PCR experiments.</p>
+          <ul style="color: var(--text-secondary); margin-left: var(--space-6);">
+            <li><strong>Native .eds support:</strong> Upload Applied Biosystems .eds files directly</li>
+            <li><strong>CSV export:</strong> Or export your data as CSV from your RT-PCR software</li>
+            <li>First column should be Temperature</li>
+            <li>Subsequent columns should be fluorescence values for each sample</li>
+            <li>Upload one or more files to begin analysis</li>
+          </ul>
+        </div>
+        </section>
+
+        <!-- Analysis Section (Hidden initially) -->
+        <section id="analysisSection" class="hidden">
+          <!-- Analysis Controls -->
+          <div class="analysis-panel">
+            <h3>⚙️ Analysis Controls</h3>
+            <div class="control-grid">
+              <div class="control-item">
+                <label class="control-label" for="normalizationMode"
+                  >Normalization Mode</label
+                >
+                <select id="normalizationMode" class="form-select">
+                  <option value="auto">Automatic</option>
+                  <option value="manual">Manual</option>
+                </select>
+                <span class="control-description"
+                  >How to determine pre/post-melt regions</span
+                >
+              </div>
+
+              <div class="control-item">
+                <label class="control-label" for="smoothingWindow"
+                  >Smoothing Window</label
+                >
+                <div class="flex gap-2 align-center">
+                  <input
+                    type="range"
+                    id="smoothingWindow"
+                    class="range-slider"
+                    min="1"
+                    max="20"
+                    value="5"
+                    step="1"
+                  />
+                  <span class="range-value" id="smoothingValue">5</span>
+                </div>
+                <span class="control-description"
+                  >Points to average for derivative calculation</span
+                >
+              </div>
+
+              <div class="control-item">
+                <label class="control-label" for="referenceSample"
+                  >Reference Sample</label
+                >
+                <select id="referenceSample" class="form-select">
+                  <option value="">Select reference...</option>
+                </select>
+                <span class="control-description"
+                  >Sample to use for difference plot</span
+                >
+              </div>
+
+              <div class="control-item">
+                <label class="control-label">&nbsp;</label>
+                <button id="analyzeBtn" class="btn btn-primary">
+                  🔬 Analyze Data
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="tabs">
+            <button class="tab active" data-tab="charts">📈 Charts</button>
+            <button class="tab" data-tab="data">📊 Data Table</button>
+            <button class="tab" data-tab="samples">🧪 Samples</button>
+          </div>
+
+          <!-- Tab Content: Charts -->
+          <div id="chartsTab" class="tab-content active">
+            <div class="charts-grid">
+              <!-- Raw Melt Curves -->
+              <div class="chart-container">
+                <div class="chart-header">
+                  <h4 class="chart-title">Raw Melt Curves</h4>
+                  <div class="chart-controls">
+                    <button class="btn btn-sm btn-secondary" data-export="raw">
+                      💾 PNG
+                    </button>
+                  </div>
+                </div>
+                <div class="chart-wrapper">
+                  <canvas id="rawChart" class="chart-canvas"></canvas>
+                </div>
+              </div>
+
+              <!-- Normalized Melt Curves -->
+              <div class="chart-container">
+                <div class="chart-header">
+                  <h4 class="chart-title">Normalized Melt Curves</h4>
+                  <div class="chart-controls">
+                    <button
+                      class="btn btn-sm btn-secondary"
+                      data-export="normalized"
+                    >
+                      💾 PNG
+                    </button>
+                  </div>
+                </div>
+                <div class="chart-wrapper">
+                  <canvas id="normalizedChart" class="chart-canvas"></canvas>
+                </div>
+              </div>
+
+              <!-- Derivative Plot -->
+              <div class="chart-container">
+                <div class="chart-header">
+                  <h4 class="chart-title">Derivative Plot (-dF/dT)</h4>
+                  <div class="chart-controls">
+                    <button
+                      class="btn btn-sm btn-secondary"
+                      data-export="derivative"
+                    >
+                      💾 PNG
+                    </button>
+                  </div>
+                </div>
+                <div class="chart-wrapper">
+                  <canvas id="derivativeChart" class="chart-canvas"></canvas>
+                </div>
+              </div>
+
+              <!-- Difference Plot -->
+              <div class="chart-container">
+                <div class="chart-header">
+                  <h4 class="chart-title">Difference Plot</h4>
+                  <div class="chart-controls">
+                    <button
+                      class="btn btn-sm btn-secondary"
+                      data-export="difference"
+                    >
+                      💾 PNG
+                    </button>
+                  </div>
+                </div>
+                <div class="chart-wrapper">
+                  <canvas id="differenceChart" class="chart-canvas"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Content: Data Table -->
+          <div id="dataTab" class="tab-content">
+            <div class="card">
+              <div class="card-header">
+                <h4 class="card-title">Data Preview</h4>
+                <button id="exportDataBtn" class="btn btn-sm btn-secondary">
+                  📥 Export CSV
+                </button>
+              </div>
+              <div class="data-table-container">
+                <table id="dataTable" class="data-table">
+                  <thead id="dataTableHead"></thead>
+                  <tbody id="dataTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Content: Samples -->
+          <div id="samplesTab" class="tab-content">
+            <div class="card">
+              <div class="card-header">
+                <h4 class="card-title">Sample Management</h4>
+                <div class="flex gap-2">
+                  <button
+                    id="selectAllSamples"
+                    class="btn btn-sm btn-secondary"
+                  >
+                    ✓ Select All
+                  </button>
+                  <button
+                    id="deselectAllSamples"
+                    class="btn btn-sm btn-secondary"
+                  >
+                    ✗ Deselect All
+                  </button>
+                </div>
+              </div>
+              <div id="sampleList" class="sample-list">
+                <!-- Samples will be populated here -->
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+      <div class="spinner"></div>
+      <p class="loading-text">Processing data...</p>
+    </div>
+
+    <!-- Libraries -->
+    <script src="lib/jszip.min.js"></script>
+    <script src="lib/chart.min.js"></script>
+    <script src="lib/papaparse.min.js"></script>
+    <script src="lib/filesaver.min.js"></script>
+
+    <!-- App Scripts -->
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
