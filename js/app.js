@@ -16,8 +16,6 @@ class HRMAnalyzer {
   }
 
   init() {
-    console.log('HRM Analyzer initialized');
-    
     // Register service worker
     this.registerServiceWorker();
     
@@ -31,8 +29,7 @@ class HRMAnalyzer {
   async registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       try {
-        const registration = await navigator.serviceWorker.register('sw.js');
-        console.log('Service Worker registered:', registration);
+        await navigator.serviceWorker.register('sw.js');
       } catch (error) {
         console.error('Service Worker registration failed:', error);
       }
@@ -103,8 +100,6 @@ class HRMAnalyzer {
   }
 
   onDataLoaded(data) {
-    console.log('Data loaded:', data);
-    
     // Set data in processor
     this.dataProcessor.setData(data);
     
@@ -195,8 +190,6 @@ class HRMAnalyzer {
   }
 
   onAnalysisComplete(data) {
-    console.log('Analysis complete:', data);
-    
     // Create charts
     this.chartManager.createCharts(data);
     
@@ -215,38 +208,53 @@ class HRMAnalyzer {
     if (!sampleList) return;
 
     const colors = this.chartManager.getColors();
-    
+
     sampleList.innerHTML = '';
-    
+
     samples.forEach((sample, idx) => {
       const item = document.createElement('div');
       item.className = `sample-item ${sample.visible ? 'selected' : ''}`;
-      
-      item.innerHTML = `
-        <input type="checkbox" class="sample-checkbox" ${sample.visible ? 'checked' : ''} data-index="${idx}">
-        <div class="sample-color" style="background-color: ${colors[idx]}"></div>
-        <div class="sample-name">${sample.name}</div>
-        <div class="sample-tm">${sample.tm ? `Tm: ${formatNumber(sample.tm, 1)}°C` : ''}</div>
-      `;
-      
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'sample-checkbox';
+      if (sample.visible) checkbox.checked = true;
+      checkbox.dataset.index = idx;
+
+      const colorDot = document.createElement('div');
+      colorDot.className = 'sample-color';
+      colorDot.style.backgroundColor = colors[idx];
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'sample-name';
+      nameEl.textContent = sample.name;
+
+      const tmEl = document.createElement('div');
+      tmEl.className = 'sample-tm';
+      tmEl.textContent = sample.tm ? `Tm: ${formatNumber(sample.tm, 1)}°C` : '';
+
+      item.appendChild(checkbox);
+      item.appendChild(colorDot);
+      item.appendChild(nameEl);
+      item.appendChild(tmEl);
+
       // Toggle visibility on click
-      const checkbox = item.querySelector('.sample-checkbox');
-      checkbox.addEventListener('change', (e) => {
+      checkbox.addEventListener('change', () => {
         this.dataProcessor.toggleSampleVisibility(idx);
       });
-      
+
       item.addEventListener('click', (e) => {
         if (e.target !== checkbox) {
           checkbox.checked = !checkbox.checked;
           this.dataProcessor.toggleSampleVisibility(idx);
         }
       });
-      
+
       sampleList.appendChild(item);
     });
   }
 
-  onSampleVisibilityChanged(data) {
+  onSampleVisibilityChanged(_data) {
     // Update charts
     const processedData = this.dataProcessor.getProcessedData();
     this.chartManager.updateCharts(processedData);
