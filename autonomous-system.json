@@ -1,0 +1,210 @@
+{
+  "version": "1.0.0",
+  "system": "HRM Analyzer",
+  "operatingPrinciple": {
+    "vision": "Deliver a safe, offline-capable HRM RT-PCR analysis workflow with versioned, machine-readable system self-documentation.",
+    "constraints": [
+      "Keep all analysis client-side to preserve data privacy.",
+      "Prefer extending the existing static PWA over introducing backend infrastructure.",
+      "Do not weaken existing validation, offline support, or export functionality."
+    ],
+    "accountability": "Repository changes must update this document when system behavior, architecture, or operational limits change."
+  },
+  "intentInterpretation": {
+    "possibleInterpretations": [
+      "Rebuild the application into a fully autonomous platform with new services and orchestration.",
+      "Refactor the existing PWA into multiple new subsystems.",
+      "Extend the current PWA with explicit architecture, safety, and execution documentation that is versioned with the codebase."
+    ],
+    "selectedInterpretation": "Extend the current PWA with explicit architecture, safety, and execution documentation that is versioned with the codebase.",
+    "selectionCriteria": [
+      "Feasibility within the current static application architecture",
+      "Long-term maintainability without unnecessary infrastructure",
+      "Smallest safe change that improves system clarity and governance"
+    ],
+    "functionalRequirements": [
+      "Document system components, responsibilities, and data flow.",
+      "Record execution phases, validation strategy, and safety guardrails.",
+      "Track change rationale and known limitations in a machine-readable format."
+    ],
+    "nonFunctionalRequirements": [
+      "Preserve offline availability.",
+      "Preserve data privacy by keeping analysis local to the browser.",
+      "Keep the documentation artifact stable enough for automated validation."
+    ]
+  },
+  "autonomousSystemDesign": {
+    "strategy": "extend_existing_system",
+    "reason": "The repository already contains a cohesive, modular PWA. Extending it is safer than a rebuild and preserves working analysis behavior.",
+    "components": [
+      {
+        "name": "App Shell",
+        "path": "js/app.js",
+        "responsibility": "Coordinates UI state, events, and module initialization."
+      },
+      {
+        "name": "File Handler",
+        "path": "js/fileHandler.js",
+        "responsibility": "Validates inputs and loads CSV or EDS files."
+      },
+      {
+        "name": "Data Processor",
+        "path": "js/dataProcessor.js",
+        "responsibility": "Normalizes melt curves, calculates derivatives, detects Tm, and prepares analysis outputs."
+      },
+      {
+        "name": "Chart Manager",
+        "path": "js/chartManager.js",
+        "responsibility": "Builds and updates the chart visualizations."
+      },
+      {
+        "name": "Export Manager",
+        "path": "js/exportManager.js",
+        "responsibility": "Exports processed data and chart artifacts."
+      },
+      {
+        "name": "EDS Parser",
+        "path": "js/edsParser.js",
+        "responsibility": "Parses Applied Biosystems .eds archives into analysis-ready data."
+      },
+      {
+        "name": "Utilities",
+        "path": "js/utils.js",
+        "responsibility": "Provides pure numerical helpers, validation helpers, and user feedback utilities."
+      },
+      {
+        "name": "Offline Cache",
+        "path": "sw.js",
+        "responsibility": "Caches app resources, including this system artifact, for offline access."
+      }
+    ],
+    "dataFlow": [
+      "User uploads a CSV or EDS file.",
+      "File handler validates the payload and delegates parsing.",
+      "Data processor extracts samples and computes normalized, derivative, and difference data.",
+      "App shell dispatches analysis events and updates the UI.",
+      "Chart manager renders the visualization set.",
+      "Export manager produces CSV and PNG artifacts."
+    ],
+    "apiContracts": [
+      "No remote API contracts are required because the application is fully client-side."
+    ]
+  },
+  "selfDirectedPlanning": {
+    "phases": [
+      "Phase 1: Preserve core file upload, analysis, charting, and export behavior.",
+      "Phase 2: Protect stability with validation and tests.",
+      "Phase 3: Improve offline delivery and documentation reliability.",
+      "Phase 4: Add enhancements only when they do not compromise scientific correctness or simplicity."
+    ],
+    "atomicTasks": [
+      "Keep the architecture map in source control.",
+      "Validate that required protocol sections exist.",
+      "Cache the artifact for offline inspection."
+    ]
+  },
+  "autonomousExecutionEngine": {
+    "executionStyle": "event-driven, client-side processing",
+    "rules": [
+      "Prefer correctness over speed for scientific calculations.",
+      "Prefer simple module boundaries over framework-heavy abstractions.",
+      "Preserve consistency between documentation, tests, and runtime behavior."
+    ]
+  },
+  "continuousSelfValidation": {
+    "checks": [
+      "Lint JavaScript modules with ESLint.",
+      "Run Vitest unit tests for pure logic and documentation artifact validation.",
+      "Keep offline cache entries aligned with static assets."
+    ],
+    "failurePolicy": "If validation fails, treat the change as incomplete until tests and lint pass again."
+  },
+  "observabilityDrivenAdaptation": {
+    "signals": [
+      "Toast notifications for user-facing errors or successes.",
+      "Loading overlays during analysis operations.",
+      "Console warnings for incomplete sample coverage or parsing problems.",
+      "Versioned service worker cache updates for static assets."
+    ],
+    "adaptationPolicy": "Use validation failures, parsing warnings, and cache version changes as triggers for safe iteration."
+  },
+  "autonomousImprovementLoop": {
+    "improvementSources": [
+      "User issues and pull requests",
+      "Automated lint and test failures",
+      "Scientific workflow gaps identified during analysis"
+    ],
+    "prioritization": "Fix correctness and safety issues before performance or UX enhancements."
+  },
+  "decisionAuthorityModel": {
+    "allowedActions": [
+      "Extend modules when behavior remains coherent with the current PWA architecture.",
+      "Refactor internal structure when it improves clarity or safety.",
+      "Document tradeoffs and limitations in this artifact."
+    ],
+    "safetyGate": "Do not introduce backend complexity, data loss risk, or new attack surface without clear need."
+  },
+  "safetyConstraints": {
+    "never": [
+      "Corrupt uploaded data or silently alter analysis results.",
+      "Introduce security-sensitive remote data processing for local scientific files.",
+      "Break existing offline, analysis, or export flows without a validated replacement."
+    ],
+    "always": [
+      "Use source control as the rollback mechanism.",
+      "Version architecture and decision changes with the codebase.",
+      "Choose the safest non-destructive path when uncertainty is high."
+    ]
+  },
+  "selfDocumentation": {
+    "artifacts": [
+      {
+        "path": "autonomous-system.json",
+        "purpose": "Machine-readable architecture map, safety contract, and decision log."
+      },
+      {
+        "path": "README.md",
+        "purpose": "Human-readable overview and entry point for contributors."
+      }
+    ],
+    "validation": "tests/autonomous-system.test.js"
+  },
+  "evolutionStrategy": {
+    "targets": [
+      "Higher automation through repeatable validation",
+      "Lower complexity through small, explicit extensions",
+      "Better performance without sacrificing correctness",
+      "Stronger security and privacy through local-only analysis",
+      "Improved developer experience through versioned system documentation"
+    ]
+  },
+  "terminationCondition": {
+    "definition": "The current scope is complete when the existing PWA behavior remains stable and the system documentation artifact fully describes the active architecture, safety constraints, and validation flow.",
+    "followUpTrigger": "Continue iterating when the architecture, workflow, or scientific analysis behavior materially changes."
+  },
+  "coreBehavioralHeuristics": [
+    "Think in systems, not files.",
+    "Optimize globally, not locally.",
+    "Avoid temporary fixes.",
+    "Eliminate root causes, not symptoms.",
+    "Continuously question whether the simplest safe design is still being used."
+  ],
+  "decisionRationale": {
+    "chosenPath": "extend_in_place",
+    "alternativesRejected": [
+      "Full rebuild into a multi-service platform because it would add risk and complexity without supporting the current client-side use case.",
+      "Broad refactor of working modules because the issue can be solved with a versioned documentation artifact and automated validation."
+    ]
+  },
+  "changeLog": [
+    {
+      "date": "2026-03-26",
+      "summary": "Added a versioned autonomous system artifact, offline caching for the artifact, and tests that validate the required protocol structure."
+    }
+  ],
+  "knownLimitations": [
+    "The application intentionally has no remote telemetry or background orchestration because uploaded scientific data stays in the browser.",
+    "Continuous improvement remains repository-driven rather than runtime self-modifying.",
+    "Observability is limited to local UI feedback, console diagnostics, and automated repository validation."
+  ]
+}

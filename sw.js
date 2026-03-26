@@ -1,7 +1,8 @@
-const CACHE_NAME = "hrm-analyzer-v2";
+const CACHE_NAME = "hrm-analyzer-v3";
 const urlsToCache = [
   "./",
   "./index.html",
+  "./autonomous-system.json",
   "./css/main.css",
   "./css/components.css",
   "./css/charts.css",
