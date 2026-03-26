@@ -1,0 +1,18 @@
+{
+  "name": "hrm-rtpcr",
+  "version": "1.0.0",
+  "description": "High Resolution Melting (HRM) analysis Progressive Web App",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint js/**/*.js",
+    "lint:fix": "eslint js/**/*.js --fix"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.9",
+    "eslint": "^9.20.0",
+    "vitest": "^2.1.9"
+  }
+}

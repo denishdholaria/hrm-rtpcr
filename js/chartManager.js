@@ -231,7 +231,7 @@ export class ChartManager {
   updateCharts(data) {
     if (!data) return;
 
-    const { temperatures, samples } = data;
+    const { samples } = data;
 
     // Update each chart
     Object.keys(this.charts).forEach(chartKey => {

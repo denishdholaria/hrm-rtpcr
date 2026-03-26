@@ -5,25 +5,42 @@ export function showToast(title, message, type = 'info') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  
+
   const icon = type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ';
-  
-  toast.innerHTML = `
-    <div class="toast-icon">${icon}</div>
-    <div class="toast-content">
-      <div class="toast-title">${title}</div>
-      <div class="toast-message">${message}</div>
-    </div>
-    <button class="toast-close">✕</button>
-  `;
-  
+
+  const iconEl = document.createElement('div');
+  iconEl.className = 'toast-icon';
+  iconEl.textContent = icon;
+
+  const contentEl = document.createElement('div');
+  contentEl.className = 'toast-content';
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'toast-title';
+  titleEl.textContent = title;
+
+  const messageEl = document.createElement('div');
+  messageEl.className = 'toast-message';
+  messageEl.textContent = message;
+
+  contentEl.appendChild(titleEl);
+  contentEl.appendChild(messageEl);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'toast-close';
+  closeBtn.textContent = '✕';
+
+  toast.appendChild(iconEl);
+  toast.appendChild(contentEl);
+  toast.appendChild(closeBtn);
+
   container.appendChild(toast);
-  
+
   // Close button
-  toast.querySelector('.toast-close').addEventListener('click', () => {
+  closeBtn.addEventListener('click', () => {
     toast.remove();
   });
-  
+
   // Auto remove after 5 seconds
   setTimeout(() => {
     if (toast.parentElement) {
@@ -46,6 +63,9 @@ export function showLoading(show = true, message = 'Processing data...') {
 }
 
 // Statistical Functions
+export const MELT_REGION_FRACTION = 0.1; // fraction of data used for pre/post melt baselines
+export const MIN_SAMPLE_COVERAGE = 0.5;  // minimum valid-data coverage to include a sample
+
 export function mean(arr) {
   return arr.reduce((sum, val) => sum + val, 0) / arr.length;
 }
@@ -113,15 +133,15 @@ export function normalizeArray(arr, preStart, preEnd, postStart, postEnd) {
 }
 
 // Auto-detect pre and post melt regions
-export function detectMeltRegions(temperatures, fluorescence) {
-  // Pre-melt: first 10% of data
-  const preEnd = Math.floor(temperatures.length * 0.1);
+export function detectMeltRegions(temperatures) {
+  // Pre-melt: first MELT_REGION_FRACTION of data
+  const preEnd = Math.floor(temperatures.length * MELT_REGION_FRACTION);
   const preStart = 0;
-  
-  // Post-melt: last 10% of data
-  const postStart = Math.floor(temperatures.length * 0.9);
+
+  // Post-melt: last MELT_REGION_FRACTION of data
+  const postStart = Math.floor(temperatures.length * (1 - MELT_REGION_FRACTION));
   const postEnd = temperatures.length;
-  
+
   return { preStart, preEnd, postStart, postEnd };
 }
 

@@ -142,8 +142,7 @@ export class EDSParser {
     if (samples.length === 0) {
       throw new Error('No valid melt curve data found in file');
     }
-    
-    console.log(`Parsed ${samples.length} samples from EDS file`);
+
     return this.formatForHRMAnalyzer(samples);
   }
 
@@ -197,8 +196,6 @@ export class EDSParser {
       
       data.push(row);
     }
-    
-    console.log(`Formatted ${samples.length} samples with ${refTemps.length} temperature points`);
     
     return {
       filename: 'eds_file',

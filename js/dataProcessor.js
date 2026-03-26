@@ -6,7 +6,8 @@ import {
   movingAverage,
   findTm,
   showToast,
-  showLoading
+  showLoading,
+  MIN_SAMPLE_COVERAGE
 } from './utils.js';
 
 export class DataProcessor {
@@ -46,7 +47,7 @@ export class DataProcessor {
     
     // 3. Extract samples
     const samples = [];
-    headers.forEach((header, idx) => {
+    headers.forEach((header) => {
       if (header === tempHeader) return; // Skip temperature column
       
       // Extract values for this sample from VALID ROWS only
@@ -59,8 +60,8 @@ export class DataProcessor {
       const validCount = fluorescence.filter(f => f !== null).length;
       const coverage = validCount / temperatures.length;
 
-      // Allow samples with at least 50% valid data
-      if (coverage > 0.5) {
+      // Allow samples with at least MIN_SAMPLE_COVERAGE valid data
+      if (coverage > MIN_SAMPLE_COVERAGE) {
         // Fill missing values to prevent analysis crashes
         const filledFluorescence = this.fillMissingValues(fluorescence);
         
@@ -86,8 +87,6 @@ export class DataProcessor {
       derivative: null,
       difference: null
     };
-
-    console.log(`Extracted ${samples.length} samples with ${temperatures.length} points`);
   }
 
   fillMissingValues(arr) {
@@ -123,8 +122,7 @@ export class DataProcessor {
       const { temperatures, samples } = this.processedData;
       
       // 1. Detect melt regions
-      const regions = detectMeltRegions(temperatures, samples[0].fluorescence);
-      console.log('Melt regions:', regions);
+      const regions = detectMeltRegions(temperatures);
 
       // 2. Normalize all samples
       const normalizedSamples = samples.map(sample => {
