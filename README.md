@@ -120,12 +120,19 @@ Temperature,Sample1,Sample2,Sample3
 - **File Export**: FileSaver.js
 - **PWA**: Service Worker, Web App Manifest
 
+## Autonomous Execution Protocol
+
+This repository now includes a versioned, machine-readable system artifact at `autonomous-system.json`.
+
+It captures the current architecture, decision rationale, validation flow, safety constraints, change log, and known limitations for the existing client-side HRM analysis system. The chosen implementation is to **extend the current PWA safely** rather than rebuild it into a more complex platform.
+
 ## File Structure
 
 ```
 hrm-analyzer/
 ├── index.html              # Main app page
 ├── manifest.json           # PWA manifest
+├── autonomous-system.json  # Machine-readable architecture and decision log
 ├── sw.js                   # Service worker
 ├── css/
 │   ├── main.css           # Core styles
